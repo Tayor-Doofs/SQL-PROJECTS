@@ -29,7 +29,7 @@ ROW_NUMBER()
 FROM dannys_diner.sales s
 JOIN dannys_diner.menu m
 USING (product_id)
-) t;
+) t
 WHERE rownumber = 1;
 
 -- Question 4
@@ -164,3 +164,33 @@ LEFT JOIN dannys_diner.members me
 USING (customer_id)
 WHERE s.order_date >= me.join_date
 GROUP BY s.customer_id;
+
+-- BONUS QUESTION 1
+
+SELECT s.customer_id, s.order_date, m.product_name, m.price,
+CASE WHEN s.order_date < me.join_date or me.join_date is null THEN "N" else "Y" end as `member`
+FROM dannys_diner.sales s
+LEFT JOIN dannys_diner.menu m
+USING (product_id)
+LEFT JOIN dannys_diner.members me
+USING (customer_id);
+
+-- BONUS QUESTION 2
+
+SELECT t.customer_id, t.order_date, t.product_name, t.price, t.member,
+CASE WHEN t.member = "N" THEN null else
+RANK()
+			OVER (
+					PARTITION BY t.customer_id, t.member
+                    ORDER BY t.customer_id, t.order_date ASC
+				 )
+END AS ranking
+FROM
+(SELECT s.customer_id, s.order_date, m.product_name, m.price,
+CASE WHEN s.order_date < me.join_date or me.join_date is null THEN "N" else "Y" end as `member`
+FROM dannys_diner.sales s
+LEFT JOIN dannys_diner.menu m
+USING (product_id)
+LEFT JOIN dannys_diner.members me
+USING (customer_id)
+) t;
