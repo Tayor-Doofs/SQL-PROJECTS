@@ -9,10 +9,18 @@ FROM pizza_runner.customer_orders;
 -- QUESTION 2
 -- How many unique customer orders were made?
 
-
+SELECT COUNT(DISTINCT customer_id) AS unique_customer_count
+FROM pizza_runner.customer_orders;
 
 -- QUESTION 3
 -- How many successful orders were delivered by each runner?
+
+SELECT runner_id, COUNT(*) AS count_of_successful_orders
+FROM pizza_runner.runner_orders
+WHERE cancellation IS NULL
+OR cancellation = "null" 
+OR cancellation = ""
+GROUP BY runner_id;
 
 -- QUESTION 4
 -- How many of each type of pizza was delivered?
