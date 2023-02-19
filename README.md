@@ -1,7 +1,7 @@
 # SQL-PROJECTS
 All my SQL projects can be found here
 
-1. 8 week SQL challenge
+** 8 week SQL challenge
 	i. Danny's Diner:
 
 	   Danny wants to use the data to answer a few simple questions about his customers, especially about their visiting patterns,
@@ -26,3 +26,5 @@ All my SQL projects can be found here
 		not just sushi - how many points do customer A and B have at the end of January?
 
 	   Attached are the queries used to create the schema and the queries used to answer the questions.
+
+	   Bonus questions are also answered

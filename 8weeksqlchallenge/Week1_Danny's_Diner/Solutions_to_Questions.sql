@@ -62,7 +62,6 @@ JOIN dannys_diner.menu m
 USING (product_id)
 GROUP BY s.customer_id, m.product_name
 ) t
-GROUP BY t.customer_id, t.product_name
 ) x
 WHERE x.rownumber = 1;
 
@@ -117,12 +116,7 @@ SUM(t.price) AS total_amount_spent
 FROM
 (
 SELECT s.customer_id, m.product_name, s.order_date, me.join_date,
-m.price,
-ROW_NUMBER()
-			OVER (
-					PARTITION BY s.customer_id
-                    ORDER BY s.customer_id, s.order_date DESC
-				 ) AS rownumber
+m.price
 FROM dannys_diner.sales s
 LEFT JOIN dannys_diner.menu m
 USING(product_id)
@@ -156,13 +150,14 @@ GROUP BY t.customer_id;
 -- have at the end of January?
 
 SELECT s.customer_id, 
-SUM(m.price * 2 * 10) as points
+case when s.order_date >= me.join_date then SUM(m.price * 2 * 10) else SUM(m.price * 10) end as points
 FROM dannys_diner.sales s
 LEFT JOIN dannys_diner.menu m
 USING (product_id)
 LEFT JOIN dannys_diner.members me
 USING (customer_id)
-WHERE s.order_date >= me.join_date
+WHERE s.order_date <= "2022-01-31"
+and s.customer_id != "C"
 GROUP BY s.customer_id;
 
 -- BONUS QUESTION 1
