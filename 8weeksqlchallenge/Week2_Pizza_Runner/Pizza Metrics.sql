@@ -1,4 +1,4 @@
--- SOLUTIONS TO PIZZA METRICS
+-- SOLUTIONS TO PIZZA METRICS QUESTIONS
 
 -- QUESTION 1
 -- How many pizzas were ordered?

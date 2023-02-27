@@ -31,3 +31,30 @@ WHERE duration = "null" OR duration = "";
 UPDATE runner_orders
 SET cancellation = NULL
 WHERE cancellation = "null" OR cancellation = "";
+
+-- The query below changes duration and distance column in the runner_orders column from "varchar" datatypes to int
+-- while also removing the unit "km" and "minutes" from each values,
+
+UPDATE runner_orders
+SET distance = TRIM(REPLACE(distance, "km", ""));
+
+ALTER TABLE runner_orders
+MODIFY distance float;
+
+ALTER TABLE runner_orders
+RENAME COLUMN distance TO distance_km;
+
+ALTER TABLE runner_orders
+RENAME COLUMN duration TO duration_mins;
+
+UPDATE runner_orders
+SET duration_mins = TRIM(REPLACE(duration_mins, "minutes", ""));
+
+UPDATE runner_orders
+SET duration_mins = TRIM(REPLACE(duration_mins, "minute", ""));
+
+UPDATE runner_orders
+SET duration_mins = TRIM(REPLACE(duration_mins, "mins", ""));
+
+ALTER TABLE runner_orders
+MODIFY duration_mins int;
