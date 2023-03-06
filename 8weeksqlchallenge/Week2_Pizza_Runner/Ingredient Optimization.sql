@@ -64,11 +64,54 @@ group by one_tag;
 -- * Meat Lovers - Extra Bacon
 -- * Meat Lovers - Exclude Cheese, Bacon - Extra Mushroom, Peppers
 
-SELECT co.customer_id, ROUND(AVG(distance_km),2) AS average_distance_travelled
-FROM pizza_runner.runner_orders ro
-JOIN pizza_runner.customer_orders co
-USING (order_id)
-GROUP BY co.customer_id;
+WITH main AS (
+SELECT co.order_id, co.customer_id, co.pizza_id, na.pizza_name, co.exclusions,
+CASE
+	WHEN co.exclusions IS NOT NULL THEN CONCAT(co.order_id, REPLACE(co.exclusions, ", ", ""))
+ELSE NULL END AS exclusions_id,
+co.extras,
+CASE
+	WHEN co.extras IS NOT NULL THEN CONCAT(co.order_id, REPLACE(co.extras, ", ", ""))
+ELSE NULL END AS extras_id,
+co.order_time
+FROM pizza_runner.customer_orders co
+JOIN pizza_runner.pizza_names na
+USING (pizza_id)
+),
+exc AS (
+SELECT order_id, CONCAT(order_id, REPLACE(GROUP_CONCAT(exclusions SEPARATOR ","), ",", "")) AS all_exclusions_id, GROUP_CONCAT(topping_name SEPARATOR ", ") AS all_exclusions
+FROM (SELECT DISTINCT ex.order_id, ex.exclusions, tp.topping_name
+	FROM exclusions ex
+	JOIN pizza_toppings tp
+	ON ex.exclusions = tp.topping_id
+    ) x
+GROUP BY order_id
+),
+ext AS (
+SELECT order_id, CONCAT(order_id, REPLACE(GROUP_CONCAT(extras SEPARATOR ","), ",", "")) AS all_extras_id, GROUP_CONCAT(topping_name SEPARATOR ", ") AS all_extras
+FROM (SELECT DISTINCT et.order_id, et.extras, tp.topping_name
+	FROM extras et
+	JOIN pizza_toppings tp
+	ON et.extras = tp.topping_id
+    ) y
+GROUP BY order_id
+)
+
+SELECT main.order_id, main.customer_id, main.pizza_id, main.exclusions, main.extras, main.order_time,
+CASE
+	WHEN main.exclusions IS NOT NULL OR main.extras IS NOT NULL THEN
+    CASE
+		WHEN main.exclusions IS NULL THEN CONCAT(main.pizza_name, " - Extra ", ext.all_extras)
+        WHEN main.extras IS NULL THEN CONCAT(main.pizza_name, " - Exclude ", exc.all_exclusions)
+	ELSE CONCAT(main.pizza_name, " - Exclude ", exc.all_exclusions, " - Extra ", ext.all_extras) END
+ELSE main.pizza_name END AS order_item
+FROM main
+LEFT JOIN exc
+ON exc.all_exclusions_id = main.exclusions_id
+LEFT JOIN ext
+ON ext.all_extras_id = main.extras_id;
+
+
 
 -- QUESTION 5
 -- Generate an alphabetically ordered comma separated ingredient list for each pizza order from the customer_orders table and add a 2x in front of any relevant ingredients
