@@ -13,13 +13,11 @@ GROUP BY `Week`;
 -- What was the average time in minutes it took for each runner
 -- to arrive at the Pizza Runner HQ to pickup the order?
 
-SELECT ro.runner_id,
-ROUND(AVG(TIMESTAMPDIFF(SECOND, co.order_time, ro.pickup_time)/60)) AS avg_minutes_to_pickup
+SELECT ROUND(AVG(TIMESTAMPDIFF(SECOND, co.order_time, ro.pickup_time)/60)) AS avg_minutes_to_pickup
 FROM pizza_runner.customer_orders co
 INNER JOIN pizza_runner.runner_orders ro
 ON co.order_id = ro.order_id
-WHERE ro.cancellation IS NULL
-GROUP BY ro.runner_id;
+WHERE ro.cancellation IS NULL;
 
 -- QUESTION 3
 -- Is there any relationship between the number of pizzas and how long the order
@@ -59,9 +57,9 @@ FROM pizza_runner.runner_orders ro;
 -- QUESTION 6
 -- What was the average speed for each runner for each delivery and do you notice any trend for these values?
 
-SELECT runner_id, ROUND(AVG(distance_km/(duration_mins/60)),2) AS average_speed
+SELECT runner_id, order_id, ROUND(AVG(distance_km/(duration_mins/60)),2) AS average_speed
 FROM pizza_runner.runner_orders ro
-GROUP BY runner_id;
+GROUP BY runner_id, order_id;
 
 -- QUESTION 7
 -- What is the successful delivery percentage for each runner?

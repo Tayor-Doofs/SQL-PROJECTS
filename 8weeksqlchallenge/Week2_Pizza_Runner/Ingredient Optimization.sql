@@ -112,13 +112,15 @@ LEFT JOIN ext
 ON ext.all_extras_id = main.extras_id;
 
 
-
 -- QUESTION 5
 -- Generate an alphabetically ordered comma separated ingredient list for each pizza order from the customer_orders table and add a 2x in front of any relevant ingredients
 -- For example: "Meat Lovers: 2xBacon, Beef, ... , Salami"
 
-SELECT CONCAT(MAX(duration_mins) - MIN(duration_mins), " minutes") AS MaxMinDelvTimeDiff
-FROM pizza_runner.runner_orders ro;
+SELECT *
+FROM pizza_runner.customer_orders co
+JOIN pizza_runner.pizza_recipes1 re
+ON re.pizza_id = co.pizza_id
+WHERE co.exclusions != cast(re.toppings as int);
 
 -- QUESTION 6
 -- What is the total quantity of each ingredient used in all delivered pizzas sorted by most frequent first?
